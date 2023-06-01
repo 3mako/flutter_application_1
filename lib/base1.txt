@@ -23,8 +23,15 @@ class MemoListScreen extends StatefulWidget {
   _MemoListScreenState createState() => _MemoListScreenState();
 }
 
-class _MemoListScreenState extends State<MemoListScreen> {
+class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProviderStateMixin {
   List<String> memos = [];
+  TabController? _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,99 +41,93 @@ class _MemoListScreenState extends State<MemoListScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.settings),
-            onPressed: () {
-              _showSettingsDialog();
-              // メニューなどの設定画面に遷移する処理を追加
-            },
+            onPressed: _showSettingsDialog,
           ),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(icon: Icon(Icons.home), text: 'ホーム'),
+            Tab(icon: Icon(Icons.delete), text: 'ロス'),
+          ],
+        ),
       ),
-      body: ListView.builder(
-        itemCount: memos.length,
-        itemBuilder: (context, index) {
-          return Dismissible(
-            key: Key(memos[index]),
-            direction: DismissDirection.endToStart,
-            background: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Icon(
-                Icons.delete,
-                color: Colors.white,
-              ),
-            ),
-            onDismissed: (direction) {
-              _deleteMemo(index);
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          ListView.builder(
+            itemCount: memos.length,
+            itemBuilder: (context, index) {
+              return Dismissible(
+                key: Key(memos[index]),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Icon(
+                    Icons.delete,
+                    color: Colors.white,
+                  ),
+                ),
+                onDismissed: (direction) {
+                  _deleteMemo(index);
+                },
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ListTile(
+                      title: Text(
+                        memos[index],
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Created: ${DateTime.now().toString()}',
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.chevron_right,
+                        color: Colors.deepPurple,
+                      ),
+                      onTap: () {
+                        _navigateToMemoDetail(context, index);
+                      },
+                    ),
+                  ),
+                ),
+              );
             },
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: ListTile(
-                  title: Text(
-                    memos[index],
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  subtitle: Text(
-                    'Created: ${DateTime.now().toString()}',
-                    style: TextStyle(
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                  trailing: Icon(
-                    Icons.chevron_right,
-                    color: Colors.deepPurple,
-                  ),
-                  onTap: () {
-                    _navigateToMemoDetail(context, index);
-                  },
-                ),
-              ),
-            ),
-          );
-        },
+          ),
+          Center(child: Text('ロスの内容')),
+        ],
       ),
-
-
-
-      floatingActionButton: ElevatedButton.icon(
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showAddMemoDialog(context);
         },
-        icon: Icon(Icons.add),
-        label: Text("食材を追加"),
-        style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          primary: Colors.deepPurple,
-          onPrimary: Colors.white,
-        ),
-       
+        child: Icon(Icons.add),
       ),
-
-
-
     );
   }
 
-  void _showSettingsDialog(){
+  void _showSettingsDialog() {
     showDialog(
       context: context,
-     builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text("Settings"),
-
-      );
-    }
-    );   
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Settings"),
+        );
+      },
+    );
   }
 
   void _navigateToMemoDetail(BuildContext context, int index) async {
@@ -219,25 +220,13 @@ class _MemoDetailScreenState extends State<MemoDetailScreen> {
         padding: EdgeInsets.all(16),
         child: TextField(
           controller: _textEditingController,
-          onChanged: (value) {
-            // メモ内容が変更された場合の処理を追加
-          },
+          onChanged: (value) {},
         ),
       ),
-
-
-      
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _saveMemo();
-        },
+        onPressed: _saveMemo,
         child: Icon(Icons.check),
       ),
-
-
-
-
-
     );
   }
 
