@@ -8,7 +8,7 @@ class MemoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Memo App',
+      title: '食品ロス',
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         fontFamily: 'Roboto',
@@ -35,6 +35,7 @@ class _MemoListScreenState extends State<MemoListScreen> {
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
+              _showSettingsDialog();
               // メニューなどの設定画面に遷移する処理を追加
             },
           ),
@@ -92,13 +93,40 @@ class _MemoListScreenState extends State<MemoListScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
+
+
+
+      floatingActionButton: ElevatedButton.icon(
         onPressed: () {
           _showAddMemoDialog(context);
         },
-        child: Icon(Icons.add),
+        icon: Icon(Icons.add),
+        label: Text("食材を追加"),
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          primary: Colors.deepPurple,
+          onPrimary: Colors.white,
+        ),
+       
       ),
+
+
+
     );
+  }
+
+  void _showSettingsDialog(){
+    showDialog(
+      context: context,
+     builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Settings"),
+
+      );
+    }
+    );   
   }
 
   void _navigateToMemoDetail(BuildContext context, int index) async {
@@ -196,12 +224,20 @@ class _MemoDetailScreenState extends State<MemoDetailScreen> {
           },
         ),
       ),
+
+
+      
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _saveMemo();
         },
         child: Icon(Icons.check),
       ),
+
+
+
+
+
     );
   }
 
