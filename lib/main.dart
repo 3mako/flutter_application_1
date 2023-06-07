@@ -4,6 +4,13 @@ void main() {
   runApp(MemoApp());
 }
 
+class Memo {
+  final String id;
+  final String content;
+
+  Memo(this.id,this.content);
+}
+
 class MemoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -24,7 +31,7 @@ class MemoListScreen extends StatefulWidget {
 }
 
 class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProviderStateMixin {
-  List<String> memos = [];
+  List<Memo> memos = [];
   TabController? _tabController;
 
   @override
@@ -45,6 +52,8 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
           ),
         ],
       ),
+
+
       body: TabBarView(
         controller: _tabController,
         children: [
@@ -52,7 +61,7 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
             itemCount: memos.length,
             itemBuilder: (context, index) {
               return Dismissible(
-                key: Key(memos[index]),
+                key: Key(memos[index].id),
                 direction: DismissDirection.endToStart,
                 background: Container(
                   color: Colors.red,
@@ -75,7 +84,7 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
                     ),
                     child: ListTile(
                       title: Text(
-                        memos[index],
+                        memos[index].content,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -111,6 +120,8 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
         child: Icon(Icons.add),
         backgroundColor: Colors.deepPurple, // 追加ボタンの背景色
       ),
+
+
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(),
         child: Container(color:const Color.fromARGB(255, 136, 106, 188),
@@ -142,7 +153,7 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
     final editedMemo = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MemoDetailScreen(memo: memos[index]),
+        builder: (context) => MemoDetailScreen(memo: memos[index].content),
       ),
     );
 
@@ -169,7 +180,8 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
             TextButton(
               onPressed: () {
                 setState(() {
-                  memos.add(newMemo);
+                  String id = DateTime.now().millisecondsSinceEpoch.toString();
+                  memos.add(Memo(id,newMemo));
                 });
                 Navigator.of(context).pop();
               },
