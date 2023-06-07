@@ -44,13 +44,6 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
             onPressed: _showSettingsDialog,
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(icon: Icon(Icons.home), text: 'ホーム'),
-            Tab(icon: Icon(Icons.delete), text: 'ロス'),
-          ],
-        ),
       ),
       body: TabBarView(
         controller: _tabController,
@@ -110,13 +103,28 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
           Center(child: Text('ロスの内容')),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showAddMemoDialog(context);
         },
         child: Icon(Icons.add),
+        backgroundColor: Colors.deepPurple, // 追加ボタンの背景色
       ),
-    );
+      bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        child: Container(color:const Color.fromARGB(255, 136, 106, 188),
+         child: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(icon: Icon(Icons.home), text: 'ホーム'),
+            Tab(icon: Icon(Icons.delete), text: 'ロス'),
+          ],
+        ),
+        ),
+       
+        )
+      );
   }
 
   void _showSettingsDialog() {
