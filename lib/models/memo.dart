@@ -4,6 +4,7 @@ class MemoModel {
   static const String tableMemos = 'memos';
   static const String columnId = 'id';
   static const String columnContent = 'content';
+  static const String columitem = 'item';
 
   late Database _database;
 

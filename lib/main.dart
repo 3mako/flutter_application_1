@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/screens/memo_table_sc.dart';
 import 'package:path/path.dart';
 import 'models/memo.dart';
+import 'screens/memo_table_sc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,12 +71,15 @@ class _MemoListScreenState extends State<MemoListScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Memo App'),
+        title: const Text('Memo App'),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: const Icon(Icons.settings),
             onPressed: () {
-              _showSettingsDialog(context);
+_showSettingsDialog(context);
+
+
+              // ignore: prefer_const_constructors
             },
           ),
         ],
@@ -91,8 +96,8 @@ class _MemoListScreenState extends State<MemoListScreen>
                 background: Container(
                   color: Colors.red,
                   alignment: Alignment.centerRight,
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Icon(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: const Icon(
                     Icons.delete,
                     color: Colors.white,
                   ),
@@ -101,7 +106,7 @@ class _MemoListScreenState extends State<MemoListScreen>
                   _deleteMemo(index);
                 },
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
@@ -110,18 +115,18 @@ class _MemoListScreenState extends State<MemoListScreen>
                     child: ListTile(
                       title: Text(
                         memos[index].content,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
                       ),
                       subtitle: Text(
                         'Created: ${DateTime.now().toString()}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontStyle: FontStyle.italic,
                         ),
                       ),
-                      trailing: Icon(
+                      trailing: const Icon(
                         Icons.chevron_right,
                         color: Colors.deepPurple,
                       ),
@@ -134,7 +139,7 @@ class _MemoListScreenState extends State<MemoListScreen>
               );
             },
           ),
-          Center(child: Text('ロスの内容')),
+          const Center(child: Text('ロスの内容')),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -142,18 +147,18 @@ class _MemoListScreenState extends State<MemoListScreen>
         onPressed: () {
           _showAddMemoDialog(context);
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         backgroundColor: Colors.deepPurple, // 追加ボタンの背景色
       ),
       bottomNavigationBar: BottomAppBar(
-        shape: CircularNotchedRectangle(),
+        shape: const CircularNotchedRectangle(),
         child: Container(
           color: const Color.fromARGB(255, 136, 106, 188),
           child: TabBar(
             controller: _tabController,
             tabs: [
-              Tab(icon: Icon(Icons.home), text: 'ホーム'),
-              Tab(icon: Icon(Icons.delete), text: 'ロス'),
+              const Tab(icon: Icon(Icons.home), text: 'ホーム'),
+              const Tab(icon: Icon(Icons.delete), text: 'ロス'),
             ],
           ),
         ),
@@ -162,15 +167,29 @@ class _MemoListScreenState extends State<MemoListScreen>
   }
 
   void _showSettingsDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text("Settings"),
-        );
-      },
-    );
-  }
+  showDialog(
+    context: context,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: Text("Settings"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MemoListScreen2(memoModel: widget.memoModel),
+                ),
+              );
+            },
+            child: Text('Go to Memo List'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   void _navigateToMemoDetail(BuildContext context, int index) async {
     final editedMemo = await Navigator.push(
@@ -192,7 +211,7 @@ class _MemoListScreenState extends State<MemoListScreen>
       builder: (BuildContext dialogContext) {
         String newMemo = '';
         return AlertDialog(
-          title: Text('追加'),
+          title: const Text('追加'),
           content: TextField(
             onChanged: (value) {
               newMemo = value;
@@ -206,13 +225,13 @@ class _MemoListScreenState extends State<MemoListScreen>
                 _loadMemos();
                 Navigator.of(dialogContext).pop();
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
           ],
         );
@@ -254,10 +273,10 @@ class _MemoDetailScreenState extends State<MemoDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Memo Detail'),
+        title: const Text('Memo Detail'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: TextField(
           controller: _textEditingController,
           onChanged: (value) {},
@@ -267,7 +286,7 @@ class _MemoDetailScreenState extends State<MemoDetailScreen> {
         onPressed: () {
           _saveMemo(context);
         },
-        child: Icon(Icons.check),
+        child: const Icon(Icons.check),
       ),
     );
   }
