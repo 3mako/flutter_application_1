@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
+import 'models/memo.dart';
 
-void main() {
-  runApp(MemoApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final memoModel = MemoModel();
+  await memoModel.init();
+
+  runApp(MemoApp(memoModel: memoModel));
 }
 
 class Memo {
   final String id;
   final String content;
 
-  Memo(this.id,this.content);
+  Memo(this.id, this.content);
 }
-//test
+
 class MemoApp extends StatelessWidget {
+  final MemoModel memoModel;
+
+  const MemoApp({required this.memoModel});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,17 +30,22 @@ class MemoApp extends StatelessWidget {
         primarySwatch: Colors.deepPurple,
         fontFamily: 'Roboto',
       ),
-      home: MemoListScreen(),
+      home: MemoListScreen(memoModel: memoModel),
     );
   }
 }
 
 class MemoListScreen extends StatefulWidget {
+  final MemoModel memoModel;
+
+  const MemoListScreen({required this.memoModel});
+
   @override
   _MemoListScreenState createState() => _MemoListScreenState();
 }
 
-class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProviderStateMixin {
+class _MemoListScreenState extends State<MemoListScreen>
+    with SingleTickerProviderStateMixin {
   List<Memo> memos = [];
   TabController? _tabController;
 
@@ -38,6 +53,16 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadMemos();
+  }
+
+  Future<void> _loadMemos() async {
+    final memos = await widget.memoModel.getMemos();
+    setState(() {
+      this.memos = memos
+          .map((memo) => Memo(memo[MemoModel.columnId], memo[MemoModel.columnContent]))
+          .toList();
+    });
   }
 
   @override
@@ -48,12 +73,12 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
         actions: [
           IconButton(
             icon: Icon(Icons.settings),
-            onPressed: _showSettingsDialog,
+            onPressed: () {
+              _showSettingsDialog(context);
+            },
           ),
         ],
       ),
-
-
       body: TabBarView(
         controller: _tabController,
         children: [
@@ -120,28 +145,26 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
         child: Icon(Icons.add),
         backgroundColor: Colors.deepPurple, // 追加ボタンの背景色
       ),
-
-
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(),
-        child: Container(color:const Color.fromARGB(255, 136, 106, 188),
-         child: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(icon: Icon(Icons.home), text: 'ホーム'),
-            Tab(icon: Icon(Icons.delete), text: 'ロス'),
-          ],
+        child: Container(
+          color: const Color.fromARGB(255, 136, 106, 188),
+          child: TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(icon: Icon(Icons.home), text: 'ホーム'),
+              Tab(icon: Icon(Icons.delete), text: 'ロス'),
+            ],
+          ),
         ),
-        ),
-       
-        )
-      );
+      ),
+    );
   }
 
-  void _showSettingsDialog() {
+  void _showSettingsDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: Text("Settings"),
         );
@@ -155,19 +178,18 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
       MaterialPageRoute(
         builder: (context) => MemoDetailScreen(memo: memos[index].content),
       ),
-    );
+    ) as String?;
 
     if (editedMemo != null) {
-      setState(() {
-        memos[index] = editedMemo;
-      });
+      await widget.memoModel.updateMemo(memos[index].id, editedMemo);
+      _loadMemos();
     }
   }
 
   void _showAddMemoDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         String newMemo = '';
         return AlertDialog(
           title: Text('追加'),
@@ -178,18 +200,17 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                setState(() {
-                  String id = DateTime.now().millisecondsSinceEpoch.toString();
-                  memos.add(Memo(id,newMemo));
-                });
-                Navigator.of(context).pop();
+              onPressed: () async {
+                final id = DateTime.now().millisecondsSinceEpoch.toString();
+                await widget.memoModel.addMemo(id, newMemo);
+                _loadMemos();
+                Navigator.of(dialogContext).pop();
               },
               child: Text('Add'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
               child: Text('Cancel'),
             ),
@@ -199,10 +220,9 @@ class _MemoListScreenState extends State<MemoListScreen> with SingleTickerProvid
     );
   }
 
-  void _deleteMemo(int index) {
-    setState(() {
-      memos.removeAt(index);
-    });
+  void _deleteMemo(int index) async {
+    await widget.memoModel.deleteMemo(memos[index].id);
+    _loadMemos();
   }
 }
 
@@ -244,13 +264,15 @@ class _MemoDetailScreenState extends State<MemoDetailScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _saveMemo,
+        onPressed: () {
+          _saveMemo(context);
+        },
         child: Icon(Icons.check),
       ),
     );
   }
 
-  void _saveMemo() {
+  void _saveMemo(BuildContext context) {
     final editedMemo = _textEditingController.text;
     Navigator.pop(context, editedMemo);
   }
