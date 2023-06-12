@@ -76,10 +76,7 @@ class _MemoListScreenState extends State<MemoListScreen>
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-_showSettingsDialog(context);
-
-
-              // ignore: prefer_const_constructors
+              _showSettingsDialog(context);
             },
           ),
         ],
@@ -148,7 +145,7 @@ _showSettingsDialog(context);
           _showAddMemoDialog(context);
         },
         child: const Icon(Icons.add),
-        backgroundColor: Colors.deepPurple, // 追加ボタンの背景色
+        backgroundColor: Colors.deepPurple,
       ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
@@ -167,29 +164,68 @@ _showSettingsDialog(context);
   }
 
   void _showSettingsDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext dialogContext) {
-      return AlertDialog(
-        title: Text("Settings"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MemoListScreen2(memoModel: widget.memoModel),
-                ),
-              );
-            },
-            child: Text('Go to Memo List'),
-          ),
-        ],
-      );
-    },
-  );
-}
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text("Settings"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _showAddCategoryDialog(dialogContext);
+              },
+              child: Text('カテゴリ追加'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MemoListScreen2(memoModel: widget.memoModel),
+                  ),
+                );
+              },
+              child: Text('DB閲覧'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
+  void _showAddCategoryDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        String categoryName = '';
+        return AlertDialog(
+          title: const Text('追加'),
+          content: TextField(
+            onChanged: (value) {
+              categoryName = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Perform the necessary operations with the category name
+                // For example, save it to the database or perform any other logic
+                print('Category Name: $categoryName');
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Add'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _navigateToMemoDetail(BuildContext context, int index) async {
     final editedMemo = await Navigator.push(
